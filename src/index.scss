@@ -1,0 +1,100 @@
+@font-face {
+  font-family: Chango-Regular;
+  src: url(./fonts/Chango-Regular.ttf);
+}
+
+// Font-size
+$textSmall: 0.7rem;
+$textLarge: 1rem;
+$titleSmall: 1.4rem;
+$titleLarge: 2rem;
+
+// Colors
+$mintGreen: #3de8d8;
+$aqua: aqua;
+$blueViolet: blueviolet;
+$blue: dodgerblue;
+$yellow: yellow;
+$red: #8e0a0a;
+$pink: #dd99bb;
+$pinkDark: #ca87a8;
+
+// Breakpoints
+$breakpoint-phone: 600px;
+$breakpoint-tablet: 768px;
+
+@keyframes colorChange {
+  from {
+    color: $aqua;
+  }
+  to {
+    color: $blueViolet;
+  }
+}
+
+body {
+  background: $mintGreen;
+  font-family: Chango-Regular;
+}
+
+.content {
+  margin: 10% 0;
+
+  @media (min-width: $breakpoint-tablet) {
+    margin: 10% 15%;
+  }
+}
+
+.mainTitle {
+  text-align: center;
+  color: $aqua;
+  animation: colorChange 5s infinite;
+  font-size: $titleSmall;
+
+  @media (min-width: $breakpoint-phone) {
+    font-size: $titleLarge;
+  }
+}
+
+.newsTitle {
+  margin-bottom: 0;
+}
+
+.newsItem {
+  text-decoration: none;
+  display: block;
+  color: $blue;
+  background: $pink;
+  margin: 10px;
+  padding: 15px 15px 15px 0;
+  position: relative;
+  display: flex;
+  font-size: $textSmall;
+
+  &:hover {
+    background: $pinkDark;
+  }
+
+  @media (min-width: $breakpoint-phone) {
+    font-size: $textLarge;
+    padding: 15px;
+  }
+
+  span {
+    position: absolute;
+    right: 10px;
+    color: $yellow;
+  }
+
+  img {
+    width: 3rem;
+    @media (min-width: $breakpoint-phone) {
+      width: 4rem;
+    }
+  }
+}
+
+.metaText {
+  margin-top: 0;
+  color: $red;
+}
