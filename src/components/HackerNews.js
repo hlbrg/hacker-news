@@ -79,7 +79,6 @@ export default class HackerNews extends React.Component {
     }
 
     componentDidMount() {
-        this.articleCount = (this.props.config && this.props.config.articleCount) || ARTICLE_COUNT
         fetch(FIRST_500_STORIES_API_URL)
             .then(res => res.json())
             .then(
