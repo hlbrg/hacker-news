@@ -1,100 +1,83 @@
 import * as React from "react";
-import NewsItem from "./NewsItem";
+import NewsStory from "./NewsStory";
 
-const FIRST_500_STORIES_API_URL = "https://hacker-news.firebaseio.com/v0/topstories.json";
-const STORY_URL = "https://hacker-news.firebaseio.com/v0/item/";//${id}.json";
-const AUTHOR_URL = "https://hacker-news.firebaseio.com/v0/user/";//${id}.json";
-const ARTICLE_COUNT = 10;
+export default class HackerNews extends React.Component{
+    completeStories = [];
 
-export default class HackerNews extends React.Component {
-    articleCount;
-    articleList = [];
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            articleComponents:[]
-        }
+    constructor(props){
+      super(props)
+      this.state = { topStories: []}
     }
 
-    getRandomBetween(min, max) {
-        return Math.floor(Math.random() * max) + min;
+    //Returns number between 0 and length of ids array
+    getRandomBetween(min, max){
+      return Math.floor(Math.random() * max) + min;
     }
 
-    getArticleIds(ids) {
-        if (!ids) return [];
-        let selectedArray = [];
-        for (let i = 0; i < this.articleCount; i++){
-            selectedArray.push(ids[this.getRandomBetween(0, ids.length - 1)])
-        }
-        return selectedArray;
+    //Returns array of ten random story ids
+    getRandomStories(ids) {
+      if (!ids) return [];
+      let selectedRandomStories = [];
+
+      for(let i = 0; i < 10; i++){
+          selectedRandomStories.push(ids[this.getRandomBetween(0, ids.length -1)])
+      }
+
+      return selectedRandomStories;
     }
 
-    updateState() {
-        this.setState({
-            articleComponents: this.articleList.map((article) =>
-                <NewsItem key={article.id} article={article}/>
-            )
-        })
-    }
-
-    onAuthor(article, author) {
-        article.author = author
-        this.articleList.push(article)
-        this.articleList.sort(this.sortArticles)
-        this.updateState();
-    }
-
-    getAuthor(article) {
-        if (!article) return
-        fetch(AUTHOR_URL + article.by + ".json")
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    this.onAuthor(article, result)
-                },
-                (error) => {
-                    console.log("result error ", error)
-                }
-            )
-    }
-
-    sortArticles(a, b) {
+    //Sorts stories array by score ascending
+    sortStories(a, b) {
         return a.score === b.score ? 0 : (a.score > b.score ? 1 : -1 );
     }
 
-    loadArticles(ids) {
-        let articleIds = this.getArticleIds(ids)
-        for (let articleIndex = 0; articleIndex < articleIds.length; articleIndex++)
-            fetch(STORY_URL + articleIds[articleIndex] + ".json")
-                .then(res => res.json())
-                .then(
-                    (result) => {
-                        this.getAuthor(result)
-                    },
-                    (error) => {
-                        console.log("result error ", error)
-                    }
-                )
+    getStories(allStoryIds){
+        let selectedStories;
+        if (!allStoryIds) return;
+
+        selectedStories = this.getRandomStories(allStoryIds)
+        for(let i = 0; i < selectedStories.length; i++){
+            fetch(`https://hacker-news.firebaseio.com/v0/item/${selectedStories[i]}.json`)
+            .then(response => response.json())
+            .then(story => {
+                this.getAuthor(story)
+            })
+        }
     }
 
-    componentDidMount() {
-        fetch(FIRST_500_STORIES_API_URL)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    this.loadArticles(result)
-                },
-                (error) => {
-                    console.log("result error ", error)
-                }
-            )
+    getAuthor(story){
+        if (!story) return;
+
+        fetch(`https://hacker-news.firebaseio.com/v0/user/${story.by}.json`)
+        .then(response => response.json())
+        .then(author => {
+            story.author = author;
+            this.completeStories.push(story)
+            this.completeStories.sort(this.sortStories)
+            this.setState({
+                topStories: this.completeStories
+            })
+        })
     }
 
-    render() {
-        return <div className="content">
+    componentDidMount(){
+      fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
+      .then(response => response.json())
+      .then(allStoryIds => {
+        this.getStories(allStoryIds)
+      })
+    }
+
+    render(){
+      return(
+          <div className="content">
             <h1 className="mainTitle">Top Hacker News stories!</h1>
-            {this.state.articleComponents}
-        </div>;
+            <div className="topStories">
+                {this.state.topStories.map(story =>
+                    <NewsStory key={story.id} story={story} />
+                )}
+            </div>
+          </div>
+      )
     }
-}
+  }
